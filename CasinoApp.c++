@@ -71,9 +71,9 @@ bool authenticateUser(vector<User>& users) {
                 outFile << u.age << endl;
             }
             outFile.close();
-            cout << "Sign-up successful! Your credentials have been saved." << endl;
-            return true;
-        } else {
+        cout << "Sign-up successful! Your credentials have been saved." << endl;
+        return true;
+    } else {
             cout << "Error: Could not save credentials!" << endl;
             return false;
         }
@@ -194,11 +194,11 @@ void currencyExchange(int& balance) {
         return;
     }
 
-    if (currency == "USD" || "usd" || "Usd") {
+    if (currency == "USD" || currency == "usd" || currency == "Usd") {
         coefficient = 1;
-    } else if (currency == "EUR" || "eur" || "Eur") {
+    } else if (currency == "EUR" || currency == "eur" || currency == "Eur") {
         coefficient = 0.93;
-    } else if (currency == "CNY" || "cny" || "Cny") {
+    } else if (currency == "CNY" || currency == "cny" || currency == "Cny") {
         coefficient = 0.72;
     }
 
@@ -240,7 +240,7 @@ void displayBlackjackInstructions() {
 void blackjack(int& balance, int& gamesPlayed, int& gamesWon, int& gamesLost, int& bonusMultiplier) {
     srand(time(0));
 
-    int bet;
+    int bet = 0;
     int dealerCard = 2 + (rand() % 9);
     int playerCard = 4 + (rand() % 18);
     int newCard = 2 + (rand() % 9);
@@ -354,7 +354,7 @@ void displayStats(int gamesPlayed, int gamesWon, int gamesLost, int balance) {
     cout << "Games Won: " << gamesWon << endl;
     cout << "Games Lost: " << gamesLost << endl;
     cout << "Balance: " << balance << " chips\n";
-    cout << "Bonuses: Right now you don't have any bonuses.\n";
+    cout << "View Bonuses: \n";
 }
 
 // Available slot symbols
@@ -419,6 +419,116 @@ void slotMachine(int& balance) {
     }
 
     cout << "Your new balance: " << balance << " chips.\n";
+
+}
+
+// =====Function to play Roulette =====
+void rouletteGame(int& balance, int& gamesPlayed, int& gamesWon, int& gamesLost) {
+    int betAmount;
+    cout << "Enter your bet amount: ";
+    cin >> betAmount;
+
+    if (betAmount > balance) {
+        cout << "You do not have enough chips to make this bet.\n";
+        return;
+    }
+
+    string betType;
+    cout << "Do you want to bet on a (1) Number, (2) Color (Red/Black), (3) Even/Odd, or (4) Green? (Enter 1, 2, 3, or 4): ";
+    cin >> betType;
+
+    int numberBet = 0;
+    string colorBet = "";
+    bool isEvenOddBet = false;
+    bool isGreenBet = false;
+
+    if (betType == "1") {
+        cout << "Enter a number between 0 and 36 to bet on: ";
+        cin >> numberBet;
+    } 
+    else if (betType == "2") {
+        cout << "Enter a color to bet on (Red/Black): ";
+        cin >> colorBet;
+
+        if (colorBet == "red" || colorBet == "Red" || colorBet == "RED") {
+            colorBet = "Red";
+        } else if (colorBet == "black" || colorBet == "Black" || colorBet == "BLACK") {
+            colorBet = "Black";
+        } else {
+            cout << "Invalid color! Please enter Red or Black.\n";
+            return;
+        }
+    } 
+    else if (betType == "3") {
+        cout << "Do you want to bet on (1) Even or (2) Odd? ";
+        cin >> betType;
+
+        if (betType == "1" || betType == "even" || betType == "Even" || betType == "EVEN") {
+            betType = "Even";
+        } else if (betType == "2" || betType == "odd" || betType == "Odd" || betType == "ODD") {
+            betType = "Odd";
+        } else {
+            cout << "Invalid choice! Please choose Even or Odd.\n";
+            return;
+        }
+
+        isEvenOddBet = true;
+    } 
+    else if (betType == "4") {
+        isGreenBet = true;  
+    } else {
+        cout << "Invalid option! Exiting game.\n";
+        return;
+    }
+
+    srand(time(0));
+    int rouletteSpin = rand() % 37;  
+    string resultColor;
+    bool isEven = rouletteSpin % 2 == 0;
+
+    if (rouletteSpin == 0) {
+        resultColor = "Green";
+    } else if (rouletteSpin % 2 == 0) {
+        resultColor = "Black";
+    } else {
+        resultColor = "Red";
+    }
+
+    cout << "The roulette spin landed on: " << rouletteSpin << " (" << resultColor << ")\n";
+
+    if (betType == "1" && numberBet == rouletteSpin) {
+        balance += betAmount * 36;  
+        gamesWon++;
+        cout << "You win! Your new balance: " << balance << endl;
+    } 
+    else if (betType == "2" && colorBet == resultColor) {
+        balance += betAmount * 2;  
+        gamesWon++;
+        cout << "You win! Your new balance: " << balance << endl;
+    } 
+    else if (isEvenOddBet && betType == "Even" && isEven) {
+        balance += betAmount * 2;  
+        gamesWon++;
+        cout << "You win! Your new balance: " << balance << endl;
+    }
+    else if (isEvenOddBet && betType == "Odd" && !isEven) {
+        balance += betAmount * 2;  
+        gamesWon++;
+        cout << "You win! Your new balance: " << balance << endl;
+    } 
+    else if (isGreenBet && rouletteSpin == 0) {
+        balance += betAmount * 36;  
+        gamesWon++;
+        cout << "You win! Your new balance: " << balance << endl;
+    } 
+    else {
+        balance -= betAmount;
+        gamesLost++;
+        cout << "You lose. Your new balance: " << balance << endl;
+    }
+
+    gamesPlayed++;
+
 }
 
 // =====Function to display the game menu=====
@@ -426,10 +536,11 @@ void gameMenu(int& balance, int& gamesPlayed, int& gamesWon, int& gamesLost, int
     int gameChoice;
     
     while (true) {
-        cout << "\n===== Games =====\n";
+        cout << "\n----- Games -----\n";
         cout << "1. Blackjack\n";
         cout << "2. Slot Machine\n";
-        cout << "3. Return to main menu\n";
+        cout << "3. Roulette\n";
+        cout << "4. Return to main menu\n";
         cout << "Choose a game (1-3): ";
         cin >> gameChoice;
 
@@ -444,6 +555,10 @@ void gameMenu(int& balance, int& gamesPlayed, int& gamesWon, int& gamesLost, int
                 slotMachine(balance);
                 break;
             case 3:
+                cout<< "\n========== Game ==========\n";
+                rouletteGame(balance, gamesPlayed, gamesWon, gamesLost);
+                break;
+            case 4:
                 return;  // Return to the main menu
             default:
                 cout << "Invalid choice. Please try again.\n";
@@ -486,7 +601,7 @@ int main() {
 
     while (true) {
         // Display main menu
-        cout << "\n=== Game Menu: ===\n";
+        cout << "\n----- Casino Main Menu: -----\n";
         cout << "Balance: " << balance << " chips.\n";
         cout << "1. Game menu\n";
         cout << "2. View statistics\n";
