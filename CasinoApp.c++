@@ -199,51 +199,102 @@ void settingsMenu(User& currentUser, vector<User>& users) {
 }
 // ===== Function to perform currency exchange =====
 void currencyExchange(int& balance) {
-    vector<string> currencies = {"USD", "EUR", "CNY"};  // List of available currencies
+    vector<string> currencies = {"USD", "EUR", "CNY"};
     string currency;
-    double coefficient = 0;  // Exchange coefficient
+    double coefficient = 0;
+    int cashmen;
 
-    // Prompt the user to enter their currency
-    cout << "What currency do you use (USD, EUR, CNY): ";
-    cin >> currency;
+    //Cashier menu
+    cout << "1. Add balance\n";
+    cout << "2. Cash out\n";
+    cout << "3. Exit\n";
+    cin >> cashmen;
 
-    // Check if the currency is valid
-    if (find(currencies.begin(), currencies.end(), currency) == currencies.end()) {
-        cout << "Invalid currency. Exiting program.\n";
-        return;
-    }
+    switch (cashmen){
+        case 1:
+            cout << "What currency do you use (USD, EUR, CNY): ";
+            cin >> currency;
 
-    // Set the exchange coefficient based on the chosen currency
-    if (currency == "USD" || currency == "usd" || currency == "Usd") {
-        coefficient = 1;  // USD is the base currency
-    } else if (currency == "EUR" || currency == "eur" || currency == "Eur") {
-        coefficient = 0.93;  // EUR to USD conversion rate
-    } else if (currency == "CNY" || currency == "cny" || currency == "Cny") {
-        coefficient = 0.72;  // CNY to USD conversion rate
-    }
+            if (find(currencies.begin(), currencies.end(), currency) == currencies.end()) {
+                cout << "Invalid currency. Exiting program.\n";
+                return;
+            }
 
-    // Display the exchange rate for the chosen currency
-    cout << "For " << currency << ", the coefficient is " << coefficient << " chips per unit.\n";
+            if (currency == "USD" || currency == "usd" || currency == "Usd") {
+                coefficient = 1;
+            } else if (currency == "EUR" || currency == "eur" || currency == "Eur") {
+                coefficient = 0.93;
+            } else if (currency == "CNY" || currency == "cny" || currency == "Cny") {
+                coefficient = 0.72;
+            }
 
-    double value;
-    cout << "Enter the value of your currency: ";
-    cin >> value;
+            cout << "For " << currency << ", the coefficient is " << coefficient << " chips per unit.\n";
 
-    // Check if the value is enough to convert into chips
-    if (value >= coefficient) {
-        int wholeChips = floor(value / coefficient);  // Calculate the whole number of chips
-        double remainingCurrency = value - (wholeChips * coefficient);  // Calculate the remaining currency
+            double value;
+            cout << "Enter the value of your currency: ";
+            cin >> value;
 
-        cout << "This would be " << wholeChips << " chips.\n";
-        cout << "Remaining currency: " << remainingCurrency << " " << currency << ".\n";
+            if (value >= coefficient) {
+                int wholeChips = floor(value / coefficient);
+                double remainingCurrency = value - (wholeChips * coefficient);
+
+                cout << "This would be " << wholeChips << " chips.\n";
+                cout << "Remaining currency: " << remainingCurrency << " " << currency << ".\n";
         
-        balance += wholeChips;  // Add chips to the balance
-        cout << "Your new balance is: " << balance << " chips.\n";
-    } else {
-        cout << "Dear client, please add more money.\n";  // If the value is less than the coefficient
+                balance += wholeChips;  
+                cout << "Your new balance is: " << balance << " chips.\n";
+            } else {
+                cout << "Dear client, please add more money.\n";
+            }
+            break;
+        case 2:
+            while (true) {
+            cout << "What currency do you use (USD, EUR, CNY): ";
+            cin >> currency;
+
+            // Check if currency is valid
+            if (find(currencies.begin(), currencies.end(), currency) == currencies.end()) {
+                cout << "Invalid currency. Please try again.\n";
+                continue;
+            }
+
+            // Set coefficient based on selected currency
+            if (currency == "USD" || currency == "usd" || currency == "Usd") {
+                coefficient = 1;
+            } else if (currency == "EUR" || currency == "eur" || currency == "Eur") {
+                coefficient = 0.93;
+            } else if (currency == "CNY" || currency == "cny" || currency == "Cny") {
+                coefficient = 0.72;
+            }
+
+            cout << "For " << currency << ", the coefficient is " << coefficient << " chips per unit.\n";
+
+            // Get value of chips
+            double cvalue;
+            cout << "Enter the value of your chips: ";
+            cin >> cvalue;
+
+            // Check if user has enough chips
+            if (cvalue <= balance) {
+                // Convert chips to currency
+              int wholeCurrency = floor(cvalue / coefficient);
+                double remainingChips = cvalue - (wholeCurrency * coefficient);
+
+                cout << "This would be " << wholeCurrency << " " << currency << ".\n";
+                cout << "Remaining chips: " << remainingChips << " chips.\n";
+        
+                // Update balance with remaining chips after conversion
+                balance -= cvalue;  // Subtract the used chips
+                balance += remainingChips;  // Add back the remaining chips
+
+                cout << "Your new balance is: " << balance << " chips.\n";
+            } else {
+                cout << "Dear client, please try a different amount of money.\n";
+            }
+            break;
+        }
     }
 }
-
 // ===== Function to display Blackjack instructions =====
 void displayBlackjackInstructions() {
     cout << "\n----- Blackjack Instructions -----\n";
